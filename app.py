@@ -17,11 +17,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# --- CONFIGURACIÓN QBITTORRENT ---
-QBIT_HOST = "localhost"
-QBIT_PORT = 8080
-QBIT_USER = "admin"
-QBIT_PASS = "adminadmin"
+# Ahora lee la configuración desde Docker, si no la encuentra usa los valores por defecto
+QBIT_HOST = os.getenv('QBIT_HOST', 'localhost')
+QBIT_PORT = int(os.getenv('QBIT_PORT', 8080))
+QBIT_USER = os.getenv('QBIT_USER', 'admin')
+QBIT_PASS = os.getenv('QBIT_PASS', 'adminadmin')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'clave_por_defecto_insegura')
 
 # --- MODELOS ---
 class User(UserMixin, db.Model):
