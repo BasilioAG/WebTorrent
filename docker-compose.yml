@@ -9,3 +9,7 @@ services:
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
+      - QBIT_HOST=192.168.3.30
+      - QBIT_PORT=8080
+      - QBIT_USER=admin
+      - QBIT_PASS=adminadmin
