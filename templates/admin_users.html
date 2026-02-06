@@ -1,136 +1,92 @@
-<!DOCTYPE html>
-<html lang="es" class="dark">
-<head>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <meta charset="UTF-8">
-    <title>Gestión de Usuarios - TorrentFlow</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
-    <style>body { font-family: 'Manrope', sans-serif; }</style>
-</head>
-<body class="bg-[#f6f7f8] dark:bg-[#101922] text-slate-900 dark:text-white flex flex-col min-h-screen">
+{% extends "layout.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Gestión de Usuarios</h1>
 
-    <header class="flex items-center justify-between border-b border-slate-200 dark:border-[#233648] px-10 py-3 bg-white dark:bg-[#101922] sticky top-0 z-50">
-        <div class="flex items-center gap-8">
-            <a href="/" class="flex items-center gap-3 text-blue-500 hover:opacity-80 transition-opacity">
-                <div class="size-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <span class="material-symbols-outlined text-blue-500" style="font-variation-settings: 'FILL' 1">rocket_launch</span>
-                </div>
-                <h2 class="text-slate-900 dark:text-white text-lg font-bold">TorrentFlow</h2>
-            </a>
-            <nav class="hidden md:flex items-center gap-6">
-                <a class="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-blue-500 transition-colors" href="/">Inicio</a>
-                <a class="text-blue-500 text-sm font-bold border-b-2 border-blue-500 pb-1" href="/admin/users">Usuarios</a>
-                <a class="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-blue-500 transition-colors" href="/admin/paths">Rutas</a>
-            </nav>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-3 bg-slate-100 dark:bg-[#192633] py-1 px-3 rounded-full border border-slate-200 dark:border-[#324d67]">
-                <img src="{{ current_user.profile_pic }}" alt="Avatar" class="w-6 h-6 rounded-full">
-                <a href="/profile" class="text-sm font-medium hover:text-blue-500 transition-colors">{{ current_user.username }}</a>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow w-full max-w-[1200px] mx-auto p-8">
+<div class="bg-white dark:bg-[#192633] p-6 rounded-xl border border-slate-200 dark:border-[#324d67] shadow-sm mb-8 w-full">
+    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Añadir Nuevo Usuario</h3>
+    <form action="/admin/create_user" method="POST" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
         
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="mb-6 p-4 rounded-lg flex items-center gap-3
-                    {% if category == 'error' %} bg-red-500/10 text-red-500 border border-red-500/20
-                    {% else %} bg-green-500/10 text-green-500 border border-green-500/20 {% endif %}">
-                    <span class="material-symbols-outlined">{% if category == 'error' %}error{% else %}check_circle{% endif %}</span>
-                    <span class="text-sm font-bold">{{ message }}</span>
-                </div>
+        <div class="lg:col-span-3">
+            <label class="block text-xs text-slate-500 mb-1">Usuario</label>
+            <input name="username" class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary dark:text-white" required>
+        </div>
+        
+        <div class="lg:col-span-3">
+            <label class="block text-xs text-slate-500 mb-1">Contraseña</label>
+            <input name="password" type="password" class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary dark:text-white" required>
+        </div>
+
+        <div class="lg:col-span-4">
+            <label class="block text-xs text-slate-500 mb-1">Rutas Permitidas (Ctrl+Click para varias)</label>
+            <select name="allowed_paths" multiple class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary dark:text-white h-10">
+                {% for path in paths %}
+                <option value="{{ path.id }}">{{ path.alias }}</option>
                 {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold">Usuarios del Sistema</h1>
+            </select>
+        </div>
+        
+        <div class="lg:col-span-1 flex items-end">
+            <label class="flex items-center justify-center gap-2 cursor-pointer bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg h-10 w-full hover:border-primary transition-colors">
+                <input type="checkbox" name="is_admin" class="w-4 h-4 text-primary rounded focus:ring-primary bg-gray-100 dark:bg-gray-700">
+                <span class="text-[10px] font-bold text-slate-500 dark:text-slate-300 select-none">ADMIN</span>
+            </label>
         </div>
 
-        <div class="bg-white dark:bg-[#192633] p-6 rounded-xl border border-slate-200 dark:border-[#324d67] shadow-sm mb-8">
-            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Añadir Nuevo Usuario</h3>
-            <form action="/admin/create_user" method="POST" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                <div class="md:col-span-3">
-                    <input name="username" class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nombre de Usuario" required>
-                </div>
-                <div class="md:col-span-3">
-                    <input name="password" type="password" class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contraseña" required>
-                </div>
-                <div class="md:col-span-3">
-                    <input name="email" type="email" class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email (Opcional)">
-                </div>
-                
-                <div class="md:col-span-2">
-                    <label class="flex items-center justify-center gap-2 cursor-pointer bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg h-[42px] hover:border-blue-500 transition-colors">
-                        <input type="checkbox" name="is_admin" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 bg-gray-100 dark:bg-gray-700">
-                        <span class="text-xs font-bold text-slate-500 dark:text-slate-300 select-none">ES ADMIN</span>
-                    </label>
-                </div>
-
-                <div class="md:col-span-1">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-[42px] rounded-lg shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center">
-                        <span class="material-symbols-outlined">add</span>
-                    </button>
-                </div>
-            </form>
+        <div class="lg:col-span-1 flex items-end">
+            <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-bold h-10 rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined">add</span>
+            </button>
         </div>
+    </form>
+</div>
 
-        <div class="bg-white dark:bg-[#192633] rounded-xl border border-slate-200 dark:border-[#324d67] overflow-hidden shadow-sm">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 dark:bg-[#0d141c] border-b border-slate-200 dark:border-[#324d67]">
-                    <tr>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Usuario</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Rol</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Contacto</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-[#233648]">
-                    {% for user in users %}
-                    <tr class="hover:bg-slate-50 dark:hover:bg-[#151f29] transition-colors">
-                        <td class="px-6 py-4 flex items-center gap-3">
-                            <img src="{{ user.profile_pic }}" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700">
-                            <span class="font-bold text-sm">{{ user.username }}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            {% if user.is_admin %}
-                            <span class="px-2 py-1 text-[10px] font-bold rounded-full bg-blue-900/30 text-blue-400 border border-blue-500/20 uppercase">Admin</span>
-                            {% else %}
-                            <span class="px-2 py-1 text-[10px] font-bold rounded-full bg-slate-700/30 text-slate-400 border border-slate-500/20 uppercase">Usuario</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-400">
-                            {{ user.email or '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex justify-end gap-2">
-                                <a href="/admin/edit_user/{{ user.id }}" class="p-2 text-slate-400 hover:text-blue-500 transition-colors">
-                                    <span class="material-symbols-outlined text-[20px]">edit_square</span>
-                                </a>
-                                {% if user.id != current_user.id %}
-                                <form action="/admin/delete_user/{{ user.id }}" method="POST" onsubmit="return confirm('¿Eliminar usuario?');">
-                                    <button class="p-2 text-slate-400 hover:text-red-500 transition-colors">
-                                        <span class="material-symbols-outlined text-[20px]">delete</span>
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <footer class="mt-auto border-t border-slate-200 dark:border-[#233648] bg-white dark:bg-[#101922] py-6 text-center">
-        <p class="text-xs text-slate-500">TorrentFlow Admin Panel</p>
-    </footer>
-</body>
-</html>
+<div class="w-full overflow-x-auto rounded-xl border border-slate-200 dark:border-[#324d67] bg-white dark:bg-[#192633] shadow-sm">
+    <table class="w-full text-left border-collapse min-w-[600px]">
+        <thead class="bg-slate-50 dark:bg-[#0d141c] border-b border-slate-200 dark:border-[#324d67]">
+            <tr>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Usuario</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Rutas Acceso</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Rol</th>
+                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-[#233648]">
+            {% for user in users %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-[#151f29] transition-colors">
+                <td class="px-6 py-4 flex items-center gap-3">
+                    <img src="{{ user.profile_pic }}" class="w-8 h-8 rounded-full">
+                    <span class="font-bold text-sm dark:text-white">{{ user.username }}</span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex flex-wrap gap-1">
+                        {% for path in user.allowed_paths %}
+                        <span class="px-2 py-0.5 text-[10px] bg-slate-700 rounded text-slate-300 border border-slate-600">{{ path.alias }}</span>
+                        {% else %}
+                        <span class="text-xs text-slate-500 italic">Ninguna asignada</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    {% if user.is_admin %}
+                    <span class="px-2 py-1 text-[10px] font-bold rounded-full bg-blue-900/30 text-blue-400 border border-blue-500/20 uppercase">Admin</span>
+                    {% else %}
+                    <span class="px-2 py-1 text-[10px] font-bold rounded-full bg-slate-700/30 text-slate-400 border border-slate-500/20 uppercase">Usuario</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex justify-end gap-2">
+                        <a href="/admin/edit_user/{{ user.id }}" class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">edit_square</span></a>
+                        {% if user.id != current_user.id %}
+                        <form action="/admin/delete_user/{{ user.id }}" method="POST" onsubmit="return confirm('¿Eliminar?');">
+                            <button class="p-2 text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined">delete</span></button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

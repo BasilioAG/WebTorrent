@@ -1,38 +1,50 @@
-{% extends "base.html" %}
-
+{% extends "layout.html" %}
+{% block title %}Editar Usuario{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow border-primary">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fa-solid fa-user-pen me-2"></i> Editar Usuario</h5>
-                <a href="/admin/users" class="btn btn-sm btn-dark"><i class="fa-solid fa-xmark"></i> Cancelar</a>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre de Usuario</label>
-                        <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Contraseña <small class="text-muted">(Déjalo vacío para no cambiarla)</small></label>
-                        <input type="password" name="password" class="form-control" placeholder="Nueva contraseña...">
-                    </div>
-                    
-                    <div class="alert alert-secondary">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="is_admin" id="adminSwitch" {% if user.is_admin %}checked{% endif %}>
-                            <label class="form-check-label fw-bold" for="adminSwitch">Es Administrador</label>
-                        </div>
-                    </div>
+<div class="w-full max-w-2xl bg-white dark:bg-[#192633] rounded-2xl border border-slate-200 dark:border-[#324d67] shadow-xl p-8 mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-2xl font-bold dark:text-white">Editar Usuario: <span class="text-primary">{{ user.username }}</span></h1>
+        <a href="/admin/users" class="text-slate-400 hover:text-white transition-colors"><span class="material-symbols-outlined">close</span></a>
+    </div>
 
-                    <button type="submit" class="btn btn-success w-100 btn-lg">
-                        <i class="fa-solid fa-save me-2"></i> Guardar Cambios
-                    </button>
-                </form>
+    <form method="POST" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Usuario</label>
+                <input type="text" name="username" value="{{ user.username }}" required class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg p-3 dark:text-white outline-none focus:ring-2 focus:ring-primary">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Nueva Password</label>
+                <input type="password" name="password" placeholder="Dejar vacío para no cambiar" class="w-full bg-slate-50 dark:bg-[#0d141c] border border-slate-200 dark:border-[#324d67] rounded-lg p-3 dark:text-white outline-none focus:ring-2 focus:ring-primary">
             </div>
         </div>
-    </div>
+
+        <div>
+            <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Rutas Permitidas</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-[#0d141c] p-4 rounded-lg border border-slate-200 dark:border-[#324d67]">
+                {% for path in paths %}
+                <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors">
+                    <input type="checkbox" name="allowed_paths" value="{{ path.id }}" 
+                        {% if path in user.allowed_paths %}checked{% endif %}
+                        class="w-5 h-5 text-primary rounded focus:ring-primary bg-white dark:bg-slate-700 border-gray-400 dark:border-gray-600">
+                    <span class="text-sm dark:text-white font-medium">{{ path.alias }}</span>
+                    <span class="text-xs text-slate-500 truncate ml-auto">{{ path.full_path }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if user.id != current_user.id %}
+        <label class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-[#324d67] bg-slate-50 dark:bg-[#0d141c] cursor-pointer">
+            <input type="checkbox" name="is_admin" {% if user.is_admin %}checked{% endif %} class="w-5 h-5 text-primary rounded focus:ring-primary">
+            <span class="text-sm font-bold dark:text-white">Permisos de Administrador</span>
+        </label>
+        {% endif %}
+
+        <div class="flex gap-3 pt-4">
+            <button type="submit" class="flex-1 bg-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-primary/20 transition-all">Guardar Cambios</button>
+            <a href="/admin/users" class="px-6 py-3 rounded-lg border border-slate-200 dark:border-[#324d67] text-slate-500 hover:bg-slate-100 dark:hover:bg-[#233648] transition-colors font-bold">Cancelar</a>
+        </div>
+    </form>
 </div>
 {% endblock %}
